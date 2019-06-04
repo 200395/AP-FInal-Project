@@ -1,0 +1,18 @@
+public class CardValue {
+    private Value type;
+    private Numbers digits;
+   
+    public CardValue(Value type, Numbers digits){
+        //instantiating
+        this.type = type;
+        this.digits = digits;
+    }
+    
+    public String toString(){
+        return this.type.toString() + "-" + this.digits.toString();
+    }
+    
+    public Numbers getValue(){
+        return this.digits;
+    }
+}

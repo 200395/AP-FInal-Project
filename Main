@@ -1,0 +1,96 @@
+import java.util.Scanner;
+public class Main { 
+    public static void main(String[] args){
+        System.out.println("Let's play a game of black jack");
+        Run playingDeck = new Run();
+        playingDeck.createFullDeck();
+        playingDeck.shuffle();
+        
+        Run playerCards = new Run(); //Card generated for the user
+        double playerMoney = 100.0; //User starts off with 100.0
+        Run dealerCards = new Run(); //Cards generated for the dealer
+        Scanner userInput = new Scanner(System.in);
+        while(playerMoney>0){
+            //Starts when the user has money over 0
+            System.out.println("You currently have " + playerMoney + ", how much do you want to bet?");
+            double playerBet = userInput.nextDouble(); //input
+            boolean endRound = false;
+            if(playerBet > playerMoney){ //Loop will break if the bet exceeds current money
+                System.out.println("You cannot bet more than you have.");
+                break;
+            }
+            System.out.println("Your hand");
+            playerCards.draw(playingDeck); //first card
+            playerCards.draw(playingDeck); //second card 
+
+            dealerCards.draw(playingDeck); //first card
+            dealerCards.draw(playingDeck); //second card, card that will be hidden
+            
+            while(true) //Always run because true is always true
+            {
+                System.out.println("Your Hand:" + playerCards.toString());
+                System.out.println("Value: " + playerCards.cardsValue());
+                System.out.println("Dealer Hand: " + dealerCards.getCard(0).toString() + " and [hidden]");
+    
+                System.out.println("Would you like to (1)Hit or (2)Stand");
+                int response = userInput.nextInt(); 
+                
+                if(response == 1){ //Hit 
+                    playerCards.draw(playingDeck); //Takes from arraylist
+                    System.out.println("You draw a:" + playerCards.getCard(playerCards.deckSize()-1).toString());
+                    if(playerCards.cardsValue() > 21){//If cardvalue goes over 21
+                        System.out.println("Bust. Currently valued at: " + playerCards.cardsValue());
+                        playerMoney = playerMoney - playerBet;
+                        endRound = true;
+                        break;
+                    }
+                }
+                if(response == 2){
+                    break;
+                }
+            }
+            
+            System.out.println("Dealer Cards:" + dealerCards.toString());
+            if((dealerCards.cardsValue() > playerCards.cardsValue())&&endRound == false){
+                System.out.println("Dealer beats you " + dealerCards.cardsValue() + " to " + playerCards.cardsValue());
+                playerMoney = playerMoney - playerBet;
+                endRound = true;
+            }
+            
+            while((dealerCards.cardsValue() < 17) && endRound == false){
+                //Dealer hits at 16 stands at 17
+                dealerCards.draw(playingDeck);
+                System.out.println("Dealer draws: " + dealerCards.getCard(dealerCards.deckSize()-1).toString());
+            }
+            
+            System.out.println("Dealers hand value: " + dealerCards.cardsValue());
+            if((dealerCards.cardsValue()>21)&& endRound == false){ //busted
+                System.out.println("Dealer Busts. You win!");
+                playerMoney += playerBet;
+                endRound = true;
+            }
+           
+            if((dealerCards.cardsValue() == playerCards.cardsValue()) && endRound == false){
+                System.out.println("tie");
+                endRound = true;
+            }
+
+            if((playerCards.cardsValue() > dealerCards.cardsValue()) && endRound == false){
+                System.out.println("You win the hand.");
+                playerMoney += playerBet;
+                endRound = true;
+            }
+            else if(endRound == false) //dealer wins
+            {
+                System.out.println("Dealer wins.");
+                playerMoney = playerMoney - playerBet;
+            }
+        
+            playerCards.moveAllToDeck(playingDeck); //add player cards back
+            dealerCards.moveAllToDeck(playingDeck); //add dealer cards back
+            System.out.println("End of Hand.");    
+        }
+        System.out.println("Sorry you don't have any money left");  
+        userInput.close(); //Close Scanner           
+    }
+}

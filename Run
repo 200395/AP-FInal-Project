@@ -1,0 +1,124 @@
+import java.util.ArrayList;
+import java.util.Random;
+public class Run {
+    private ArrayList<CardValue> cards;
+    public Run(){
+        //Instantiating
+        this.cards = new ArrayList<CardValue>();
+    
+    }
+
+    public void createFullDeck(){ //Generating deck
+        for(Value cardSuit : Value.values()){//Suit
+            //Values is a functions
+            for(Numbers cardValue : Numbers.values()){ //Number
+                 this.cards.add(new CardValue(cardSuit,cardValue)); 
+                 //Every number is assigned a suit
+            }
+        }
+    }
+
+    public void shuffle(){
+        ArrayList<CardValue> newDeck = new ArrayList<CardValue>(); //new deck
+        Random random = new Random(); //refers to import statement
+        int randomCardIndex = 0;
+        int currentSize = this.cards.size(); 
+        for(int i = 0; i<currentSize; i++){
+            //((max - min) + 1) + min;
+            //min is zero
+            randomCardIndex = random.nextInt((this.cards.size()-1) + 1);
+            newDeck.add(this.cards.get(randomCardIndex));
+            this.cards.remove(randomCardIndex);
+            /*The idea is that it adds the value from the old deck to the 
+             * new deck, then removes the value just added from the old deck
+             */
+        }
+        this.cards = newDeck; //Setting deck as shuffled
+    }
+
+    public void subtractCard(int i){ 
+        //Remove card from the deck
+        this.cards.remove(i);
+    }
+    
+    public CardValue getCard(int i){ 
+        //Get card from deck
+        return this.cards.get(i);
+    }
+    
+    public void recieveCard(CardValue addCard){ 
+        //Add card to deck
+        this.cards.add(addCard);
+    }
+
+    public void draw(Run comingFrom){//Draw the top card from deck
+        //Add card to this deck from whatever deck its coming from
+        this.cards.add(comingFrom.getCard(0));
+        //Remove the card in the deck its coming from
+        comingFrom.subtractCard(0);
+    }
+    
+    public String toString(){//Use to print out deck
+        String cardOutput = "";
+        int count = 0;
+        for(CardValue trueCard : this.cards){
+            cardOutput += "\n" + trueCard.toString();
+            count++;
+        }
+        return cardOutput;
+    }
+    
+    public void moveAllToDeck(Run moveTo){
+        int thisDeckSize = this.cards.size();
+        //put cards in moveTo deck
+        for(int i = 0; i < thisDeckSize; i++){
+            moveTo.recieveCard(this.getCard(i));
+        }
+        //empty out the deck
+        for(int i = 0; i < thisDeckSize; i++){
+            this.subtractCard(0);
+        }
+    }
+    
+    public int deckSize(){
+        return this.cards.size();
+    }
+    
+    //Calculate the value of deck
+    public int cardsValue(){
+        int totalValue = 0;
+        int aces = 0;
+        //For every card in the deck
+        for(CardValue aCard : this.cards){
+            //Switch of possible values
+            switch(aCard.getValue()){
+            case TWO: totalValue += 2; break;
+            case THREE: totalValue += 3; break;
+            case FOUR: totalValue += 4; break;
+            case FIVE: totalValue += 5; break;
+            case SIX: totalValue += 6; break;
+            case SEVEN: totalValue += 7; break;
+            case EIGHT: totalValue += 8; break;
+            case NINE: totalValue += 9; break;
+            case TEN: totalValue += 10; break;
+            case JACK: totalValue += 10; break;
+            case QUEEN: totalValue += 10; break;
+            case KING: totalValue += 10; break;
+            case ACE: aces += 1; break;
+            }           
+        }
+        //Determine the total current value with aces
+        //Aces worth 11 or 1 - if 11 would go over 21 make it worth 1
+        
+        for(int i = 0; i < aces; i++){
+            //If they're already at over 10 getting an ace valued at 11 would put them up to 22, so make ace worth one
+            if (totalValue > 10){
+                totalValue += 1;
+            }
+            else{
+                totalValue += 11;
+            }
+        }
+        return totalValue;
+    }
+}
